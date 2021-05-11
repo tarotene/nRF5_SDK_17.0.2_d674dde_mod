@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "*.cu": "c",
+        "*.cuf": "FortranFreeForm",
+        ".bash_alias": "shellscript",
+        "bashrc": "shellscript",
+        "vimrc": "shellscript",
+        "boards.h": "c",
+        "nrf_delay.h": "c",
+        "exception": "cpp",
+        "new": "cpp"
+    },
+    "git.ignoreLimitWarning": true
+}
