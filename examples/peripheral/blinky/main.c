@@ -69,16 +69,6 @@ int main(void)
             bsp_board_led_invert(i);
             nrf_delay_ms(500);
         }
-
-        // for (int i = 0; i < LEDS_NUMBER; i++)
-        // {
-        //     for (size_t j = 0; j < 5; j++)
-        //     {
-        //         bsp_board_led_invert(i);
-        //         nrf_delay_ms(25);
-        //     }
-            
-        // }
     }
 }
 
