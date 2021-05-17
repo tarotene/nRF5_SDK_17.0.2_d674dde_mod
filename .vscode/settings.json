@@ -8,7 +8,20 @@
         "boards.h": "c",
         "nrf_delay.h": "c",
         "exception": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "stdint.h": "c",
+        "atomic": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp",
+        "memory": "cpp",
+        "type_traits": "cpp",
+        "segger_rtt.h": "c",
+        "segger_rtt_conf.h": "c",
+        "nordic_common.h": "c",
+        "app_util_platform.h": "c",
+        "sdk_config.h": "c",
+        "cstdarg": "cpp",
+        "types.h": "c"
     },
     "git.ignoreLimitWarning": true
 }

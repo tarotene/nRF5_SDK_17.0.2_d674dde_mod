@@ -48,28 +48,134 @@
  *
  */
 
-#include <stdbool.h>
 #include <stdint.h>
-#include "nrf_delay.h"
-#include "boards.h"
+// #include "nrf_delay.h"
+// #include "boards.h"
+
+// #include "SEGGER_RTT.h"
+
+typedef struct
+{ /*!< (@ 0x50000000) P0 Structure                                               */
+    volatile const uint32_t RESERVED[321];
+    volatile uint32_t OUT;        /*!< (@ 0x00000504) Write GPIO port                                            */
+    volatile uint32_t OUTSET;     /*!< (@ 0x00000508) Set individual bits in GPIO port                           */
+    volatile uint32_t OUTCLR;     /*!< (@ 0x0000050C) Clear individual bits in GPIO port                         */
+    volatile const uint32_t IN;   /*!< (@ 0x00000510) Read GPIO port                                             */
+    volatile uint32_t DIR;        /*!< (@ 0x00000514) Direction of GPIO pins                                     */
+    volatile uint32_t DIRSET;     /*!< (@ 0x00000518) DIR set register                                           */
+    volatile uint32_t DIRCLR;     /*!< (@ 0x0000051C) DIR clear register                                         */
+    volatile uint32_t LATCH;      /*!< (@ 0x00000520) Latch register indicating what GPIO pins that
+                                                                    have met the criteria set in the PIN_CNF[n].SENSE
+                                                                    registers                                                  */
+    volatile uint32_t DETECTMODE; /*!< (@ 0x00000524) Select between default DETECT signal behaviour
+                                                                    and LDETECT mode                                           */
+    volatile const uint32_t RESERVED1[118];
+    volatile uint32_t PIN_CNF[32]; /*!< (@ 0x00000700) Description collection[0]: Configuration of GPIO
+                                                                    pins                                                       */
+} NRF_GPIO_Type;                   /*!< Size = 1920 (0x780)                                                       */
+
+#define NRF_GPIO_BASE ((NRF_GPIO_Type *)0x50000000UL)
 
 /**
  * @brief Function for application main entry.
  */
 int main(void)
 {
-    /* Configure board. */
-    bsp_board_init(BSP_INIT_LEDS);
+    // GPIOのベースアドレスへのポインタを取得
+    NRF_GPIO_Type *reg = NRF_GPIO_BASE;
+
+    // GPIOのLEDに対応する4本のピンを設定
+    reg->PIN_CNF[17] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[18] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[19] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[20] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    /* 
+    ビット番号
+    {
+     GPIO_PIN_CNF_DIR_Pos     := 0UL
+     GPIO_PIN_CNF_INPUT_Pos   := 1UL
+     GPIO_PIN_CNF_PULL_Pos    := 2UL
+     GPIO_PIN_CNF_DRIVE_Pos   := 8UL
+     GPIO_PIN_CNF_SENSE_Pos   := 16UL
+    }
+    にビット値
+    {
+     DIR     = OUTPUT       := 1UL,
+     INPUT   = DISCONNECT   := 1UL,
+     PULL    = NOPULL       := 0UL,
+     DRIVE   = BOTH STD     := 1UL,
+     SENSE   = NOSENSE      := 0UL
+    }
+    をそれぞれセットしたものをGPIO XX (XX = 17, 18, 19, 20) 番ピンのPIN_CNFレジスタに代入．
+    */
+
+    // reg->OUTSET &= ~((1UL << 17) | (1UL << 20));
+    // reg->OUTCLR |= ((1UL << 17) | (1UL << 20));
+
+    // reg->OUTCLR &= ~((1UL << 18) | (1UL << 19));
+    // reg->OUTSET |= ((1UL << 18) | (1UL << 19));
+
+    // reg->OUTSET &= ~(1UL << 17); // Avoid unallowed state
+    // reg->OUTCLR |= (1UL << 17);  // Switch-on LED (at GPIO P0.17)
+    reg->OUTCLR &= ~(1UL << 17);  // Hold state / Avoid unallowed state ?
+    reg->OUTSET |= (1UL << 17);   // Switch-off LED (at GPIO P0.17)
+    // reg->OUTSET &= ~(1UL << 17);  // Hold state / Avoid unallowed state ?
+
+    // reg->OUTSET &= ~(1UL << 18); // Avoid unallowed state
+    // reg->OUTCLR |= (1UL << 18);  // Switch-on LED (at GPIO P0.18)
+    reg->OUTCLR &= ~(1UL << 18); // Hold state / Avoid unallowed state ?
+    reg->OUTSET |= (1UL << 18);  // Switch-off LED (at GPIO P0.18)
+    // reg->OUTSET &= ~(1UL << 18); // Hold state / Avoid unallowed state ?
+
+    // reg->OUTSET &= ~(1UL << 19); // Avoid unallowed state
+    // reg->OUTCLR |= (1UL << 19);  // Switch-on LED (at GPIO P0.00)
+    // reg->OUTCLR &= ~(1UL << 19); // Hold state / Avoid unallowed state ?
+    // reg->OUTSET |= (1UL << 19);  // Switch-off LED (at GPIO P0.00)
+    // reg->OUTSET &= ~(1UL << 19); // Hold state / Avoid unallowed state ?
+
+    // reg->OUTSET &= ~(1UL << 20); // Avoid unallowed state
+    // reg->OUTCLR |= (1UL << 20);  // Switch-on LED (at GPIO P0.00)
+    // reg->OUTCLR &= ~(1UL << 20); // Hold state / Avoid unallowed state ?
+    // reg->OUTSET |= (1UL << 20);  // Switch-off LED (at GPIO P0.00)
+    // reg->OUTSET &= ~(1UL << 20); // Hold state / Avoid unallowed state ?
+
+    // reg->OUT &= ~(1UL << 17);
+    // reg->OUT |= (1UL << 17);
+    // reg->OUT &= ~(1UL << 17);
+    // reg->OUT |= (1UL << 17);
+    // reg->OUT &= ~(1UL << 17);
+    // reg->OUT |= (1UL << 17);
+
+    // reg->OUT &= ~(1UL << 18);
+    // reg->OUT |= (1UL << 18);
+    // reg->OUT &= ~(1UL << 18);
+    // reg->OUT |= (1UL << 18);
+    // reg->OUT &= ~(1UL << 18);
+    // reg->OUT |= (1UL << 18);
+
+    // reg->OUT &= ~(1UL << 19);
+    // reg->OUT |= (1UL << 19);
+    // reg->OUT &= ~(1UL << 19);
+    // reg->OUT |= (1UL << 19);
+    // reg->OUT &= ~(1UL << 19);
+    // reg->OUT |= (1UL << 19);
+
+    // reg->OUT &= ~(1UL << 20);
+    // reg->OUT |= (1UL << 20);
+    // reg->OUT &= ~(1UL << 20);
+    // reg->OUT |= (1UL << 20);
+    // reg->OUT &= ~(1UL << 20);
+    // reg->OUT |= (1UL << 20);
 
     /* Toggle LEDs. */
-    while (true)
-    {
-        for (int i = 0; i < LEDS_NUMBER; i++)
-        {
-            bsp_board_led_invert(i);
-            nrf_delay_ms(500);
-        }
-    }
+    // while (1)
+    // {
+    //     for (int i = 0; i < 4; i++)
+    //     {
+    //         bsp_board_led_invert(i);
+    //         nrf_delay_ms(500);
+    //     }
+    // }
 }
 
 /**
