@@ -49,6 +49,8 @@
  */
 
 #include <stdint.h>
+// #include <stdio.h>
+// #include <inttypes.h>
 // #include "nrf_delay.h"
 // #include "boards.h"
 
@@ -76,13 +78,21 @@ typedef struct
 
 #define NRF_GPIO_BASE ((NRF_GPIO_Type *)0x50000000UL)
 
+typedef void (*delay_func_t)(uint32_t);
 /**
  * @brief Function for application main entry.
  */
 int main(void)
-{
+{   
+    // ループ関数の定義
+    static const uint16_t delay_machine_code[] = {
+        0x3800 + 3, // SUBS r0, #loop_cycles
+        0xd8fd,                                     // BHI .-2
+        0x4770                                      // BX LR
+    };
+
     // GPIOのベースアドレスへのポインタを取得
-    NRF_GPIO_Type *reg = NRF_GPIO_BASE;
+    NRF_GPIO_Type *reg = (NRF_GPIO_Type *)0x50000000UL;
 
     // GPIOのLEDに対応する4本のピンを設定
     reg->PIN_CNF[17] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
@@ -109,73 +119,51 @@ int main(void)
     をそれぞれセットしたものをGPIO XX (XX = 17, 18, 19, 20) 番ピンのPIN_CNFレジスタに代入．
     */
 
-    // reg->OUTSET &= ~((1UL << 17) | (1UL << 20));
-    // reg->OUTCLR |= ((1UL << 17) | (1UL << 20));
+    reg->OUTSET |= ((1UL << 17) | (1UL << 18) | (1UL << 19) | (1UL << 20)); // LED Global Switch-off (GPIO P0.17-P.0.20)
 
-    // reg->OUTCLR &= ~((1UL << 18) | (1UL << 19));
-    // reg->OUTSET |= ((1UL << 18) | (1UL << 19));
+    uint32_t ms_time;
 
-    // reg->OUTSET &= ~(1UL << 17); // Avoid unallowed state
-    // reg->OUTCLR |= (1UL << 17);  // Switch-on LED (at GPIO P0.17)
-    reg->OUTCLR &= ~(1UL << 17);  // Hold state / Avoid unallowed state ?
-    reg->OUTSET |= (1UL << 17);   // Switch-off LED (at GPIO P0.17)
-    // reg->OUTSET &= ~(1UL << 17);  // Hold state / Avoid unallowed state ?
-
-    // reg->OUTSET &= ~(1UL << 18); // Avoid unallowed state
-    // reg->OUTCLR |= (1UL << 18);  // Switch-on LED (at GPIO P0.18)
-    reg->OUTCLR &= ~(1UL << 18); // Hold state / Avoid unallowed state ?
-    reg->OUTSET |= (1UL << 18);  // Switch-off LED (at GPIO P0.18)
-    // reg->OUTSET &= ~(1UL << 18); // Hold state / Avoid unallowed state ?
-
-    // reg->OUTSET &= ~(1UL << 19); // Avoid unallowed state
-    // reg->OUTCLR |= (1UL << 19);  // Switch-on LED (at GPIO P0.00)
-    // reg->OUTCLR &= ~(1UL << 19); // Hold state / Avoid unallowed state ?
-    // reg->OUTSET |= (1UL << 19);  // Switch-off LED (at GPIO P0.00)
-    // reg->OUTSET &= ~(1UL << 19); // Hold state / Avoid unallowed state ?
-
-    // reg->OUTSET &= ~(1UL << 20); // Avoid unallowed state
-    // reg->OUTCLR |= (1UL << 20);  // Switch-on LED (at GPIO P0.00)
-    // reg->OUTCLR &= ~(1UL << 20); // Hold state / Avoid unallowed state ?
-    // reg->OUTSET |= (1UL << 20);  // Switch-off LED (at GPIO P0.00)
-    // reg->OUTSET &= ~(1UL << 20); // Hold state / Avoid unallowed state ?
-
-    // reg->OUT &= ~(1UL << 17);
-    // reg->OUT |= (1UL << 17);
-    // reg->OUT &= ~(1UL << 17);
-    // reg->OUT |= (1UL << 17);
-    // reg->OUT &= ~(1UL << 17);
-    // reg->OUT |= (1UL << 17);
-
-    // reg->OUT &= ~(1UL << 18);
-    // reg->OUT |= (1UL << 18);
-    // reg->OUT &= ~(1UL << 18);
-    // reg->OUT |= (1UL << 18);
-    // reg->OUT &= ~(1UL << 18);
-    // reg->OUT |= (1UL << 18);
-
-    // reg->OUT &= ~(1UL << 19);
-    // reg->OUT |= (1UL << 19);
-    // reg->OUT &= ~(1UL << 19);
-    // reg->OUT |= (1UL << 19);
-    // reg->OUT &= ~(1UL << 19);
-    // reg->OUT |= (1UL << 19);
-
-    // reg->OUT &= ~(1UL << 20);
-    // reg->OUT |= (1UL << 20);
-    // reg->OUT &= ~(1UL << 20);
-    // reg->OUT |= (1UL << 20);
-    // reg->OUT &= ~(1UL << 20);
-    // reg->OUT |= (1UL << 20);
+    // typedef void (*delay_func_t)(uint32_t);
 
     /* Toggle LEDs. */
-    // while (1)
-    // {
-    //     for (int i = 0; i < 4; i++)
-    //     {
-    //         bsp_board_led_invert(i);
-    //         nrf_delay_ms(500);
-    //     }
-    // }
+    while (1)
+    {
+        reg->OUT ^= (1UL << 17);
+        ms_time = 500;
+        do
+        {
+            const delay_func_t delay_cycles = (delay_func_t)((((uint32_t)delay_machine_code) | 1)); // Set LSB to 1 to execute the code in the Thumb mode.
+            // const delay_func_t delay_cycles = (delay_func_t)((uint32_t)delay_machine_code);
+            delay_cycles((uint32_t)6400);
+        } while (--ms_time);
+
+        reg->OUT ^= (1UL << 18);
+        ms_time = 500;
+        do
+        {
+            const delay_func_t delay_cycles = (delay_func_t)((((uint32_t)delay_machine_code) | 1)); // Set LSB to 1 to execute the code in the Thumb mode.
+            // const delay_func_t delay_cycles = (delay_func_t)((uint32_t)delay_machine_code);
+            delay_cycles((uint32_t) 6400);
+        } while (--ms_time);
+
+        reg->OUT ^= (1UL << 19);
+        ms_time = 500;
+        do
+        {
+            const delay_func_t delay_cycles = (delay_func_t)((((uint32_t)delay_machine_code) | 1)); // Set LSB to 1 to execute the code in the Thumb mode.
+            // const delay_func_t delay_cycles = (delay_func_t)((uint32_t)delay_machine_code);
+            delay_cycles((uint32_t)6400);
+        } while (--ms_time);
+
+        reg->OUT ^= (1UL << 20);
+        ms_time = 500;
+        do
+        {
+            const delay_func_t delay_cycles = (delay_func_t)((((uint32_t)delay_machine_code) | 1)); // Set LSB to 1 to execute the code in the Thumb mode.
+            // const delay_func_t delay_cycles = (delay_func_t)((uint32_t)delay_machine_code);
+            delay_cycles((uint32_t)6400);
+        } while (--ms_time);
+    }
 }
 
 /**

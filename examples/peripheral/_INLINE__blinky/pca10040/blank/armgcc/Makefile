@@ -29,9 +29,8 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
+  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Conf.c \
   # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
-  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
-  # $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -57,7 +56,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/memobj \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/libraries/log/src \
-  # $(SDK_ROOT)/external/segger_rtt \
+  # $(SDK_ROOT)/external/segger_rtt/ \
 
 # Libraries common to all targets
 LIB_FILES += \
