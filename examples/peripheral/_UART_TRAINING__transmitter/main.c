@@ -47,6 +47,8 @@
  *
  */
 
+#include <inttypes.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -55,21 +57,20 @@
 #include "nrf_delay.h"
 #include "nrf.h"
 #include "bsp.h"
-#if defined (UART_PRESENT)
+#if defined(UART_PRESENT)
 #include "nrf_uart.h"
 #endif
-#if defined (UARTE_PRESENT)
+#if defined(UARTE_PRESENT)
 #include "nrf_uarte.h"
 #endif
 
-
 //#define ENABLE_LOOPBACK_TEST  /**< if defined, then this example will be a loopback test, which means that TX should be connected to RX to get data loopback. */
 
-#define MAX_TEST_DATA_BYTES     (15U)                /**< max number of test bytes to be used for tx and rx. */
-#define UART_TX_BUF_SIZE 256                         /**< UART TX buffer size. */
-#define UART_RX_BUF_SIZE 256                         /**< UART RX buffer size. */
+#define MAX_TEST_DATA_BYTES (15U) /**< max number of test bytes to be used for tx and rx. */
+#define UART_TX_BUF_SIZE 256      /**< UART TX buffer size. */
+#define UART_RX_BUF_SIZE 256      /**< UART RX buffer size. */
 
-void uart_error_handle(app_uart_evt_t * p_event)
+void uart_error_handle(app_uart_evt_t *p_event)
 {
     if (p_event->evt_type == APP_UART_COMMUNICATION_ERROR)
     {
@@ -80,7 +81,6 @@ void uart_error_handle(app_uart_evt_t * p_event)
         APP_ERROR_HANDLER(p_event->data.error_code);
     }
 }
-
 
 #ifdef ENABLE_LOOPBACK_TEST
 /* Use flow control in loopback test. */
@@ -98,21 +98,21 @@ static void show_error(void)
     }
 }
 
-
 /** @brief Function for testing UART loop back.
  *  @details Transmitts one character at a time to check if the data received from the loopback is same as the transmitted data.
  *  @note  @ref TX_PIN_NUMBER must be connected to @ref RX_PIN_NUMBER)
  */
 static void uart_loopback_test()
 {
-    uint8_t * tx_data = (uint8_t *)("\r\nLOOPBACK_TEST\r\n");
-    uint8_t   rx_data;
+    uint8_t *tx_data = (uint8_t *)("\r\nLOOPBACK_TEST\r\n");
+    uint8_t rx_data;
 
     // Start sending one byte and see if you get the same
     for (uint32_t i = 0; i < MAX_TEST_DATA_BYTES; i++)
     {
         uint32_t err_code;
-        while (app_uart_put(tx_data[i]) != NRF_SUCCESS);
+        while (app_uart_put(tx_data[i]) != NRF_SUCCESS)
+            ;
 
         nrf_delay_ms(10);
         err_code = app_uart_get(&rx_data);
@@ -129,7 +129,6 @@ static void uart_loopback_test()
 #define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
 #endif
 
-
 /**
  * @brief Function for main application entry.
  */
@@ -140,47 +139,104 @@ int main(void)
     bsp_board_init(BSP_INIT_LEDS);
 
     const app_uart_comm_params_t comm_params =
-      {
-          RX_PIN_NUMBER,
-          TX_PIN_NUMBER,
-          RTS_PIN_NUMBER,
-          CTS_PIN_NUMBER,
-          UART_HWFC,
-          false,
-#if defined (UART_PRESENT)
-          NRF_UART_BAUDRATE_115200
+    { RX_PIN_NUMBER,
+      TX_PIN_NUMBER,
+      RTS_PIN_NUMBER,
+      CTS_PIN_NUMBER,
+      UART_HWFC,
+      false,
+#if defined(UART_PRESENT)
+      NRF_UART_BAUDRATE_115200
 #else
-          NRF_UARTE_BAUDRATE_115200
+      NRF_UARTE_BAUDRATE_115200
 #endif
-      };
+    };
 
     APP_UART_FIFO_INIT(&comm_params,
-                         UART_RX_BUF_SIZE,
-                         UART_TX_BUF_SIZE,
-                         uart_error_handle,
-                         APP_IRQ_PRIORITY_LOWEST,
-                         err_code);
+                       UART_RX_BUF_SIZE,
+                       UART_TX_BUF_SIZE,
+                       uart_error_handle,
+                       APP_IRQ_PRIORITY_LOWEST,
+                       err_code);
 
     APP_ERROR_CHECK(err_code);
 
 #ifndef ENABLE_LOOPBACK_TEST
     printf("\r\nUART example started.\r\n");
 
+    NRF_GPIO_Type *reg = (NRF_GPIO_Type *)0x50000000UL;
+    reg->PIN_CNF[13] = (0UL << 0UL) | (0UL << 1UL) | (3UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[14] = (0UL << 0UL) | (0UL << 1UL) | (3UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[15] = (0UL << 0UL) | (0UL << 1UL) | (3UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[16] = (0UL << 0UL) | (0UL << 1UL) | (3UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[17] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[18] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[19] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+    reg->PIN_CNF[20] = (1UL << 0UL) | (1UL << 1UL) | (0UL << 2UL) | (1UL << 8UL) | (0UL << 16UL);
+
+    bsp_board_init(BSP_INIT_BUTTONS);
+
     while (true)
     {
-        uint8_t cr;
-        while (app_uart_get(&cr) != NRF_SUCCESS);
-        while (app_uart_put(cr) != NRF_SUCCESS);
+        // uint8_t cr;
+        // while (app_uart_get(&cr) != NRF_SUCCESS);
+        // while (app_uart_put(cr) != NRF_SUCCESS);
 
-        if (cr == 'q' || cr == 'Q')
-        {
-            printf(" \r\nExit!\r\n");
+        // reg->OUT &= ~(15UL << 17);
+        // reg->OUT |= (cr << 17);
 
-            while (true)
+        // if (cr == 'q' || cr == 'Q')
+        // {
+        //     printf(" \r\nExit!\r\n");
+
+        //     while (true)
+        //     {
+        //         // Do nothing.
+        //     }
+        // }
+
+        /* 
+            ビット番号
             {
-                // Do nothing.
+            GPIO_PIN_CNF_DIR_Pos     := 0UL
+            GPIO_PIN_CNF_INPUT_Pos   := 1UL
+            GPIO_PIN_CNF_PULL_Pos    := 2UL
+            GPIO_PIN_CNF_DRIVE_Pos   := 8UL
+            GPIO_PIN_CNF_SENSE_Pos   := 16UL
             }
+            にビット値
+            {
+            DIR     = INPUT     := 0UL,
+            INPUT   = CONNECT   := 1UL,
+            PULL    = PULLUP    := 3UL,
+            DRIVE   = BOTH STD  := 1UL,
+            SENSE   = NOSENSE   := 0UL
+            }
+            をそれぞれセットしたものをGPIO XX (XX = 13, 14, 15, 16) 番ピンのPIN_CNFレジスタに代入．
+        */
+
+        // #define STATE_BUTTON_2 (reg->IN >> 14) & 1UL;
+        // #define STATE_BUTTON_3 (reg->IN >> 15) & 1UL;
+        // #define STATE_BUTTON_4 (reg->IN >> 16) & 1UL;
+
+        // uint32_t buf_button_1 = STATE_BUTTON_1;
+        // uint32_t buf_button_2 = STATE_BUTTON_2;
+        // uint32_t buf_button_3 = STATE_BUTTON_3;
+        // uint32_t buf_button_4 = STATE_BUTTON_4;
+
+        // while (buf_button_1 == STATE_BUTTON_1 && buf_button_2 == STATE_BUTTON_2 && buf_button_3 == STATE_BUTTON_3 && buf_button_4 == STATE_BUTTON_4)
+        // {
+        //     /* wait until any button's state changes */
+        // }
+        uint32_t reg_buttons = ((reg->IN >> 13) & 15UL);
+
+        while (((reg->IN >> 13) & 15UL) == reg_buttons)
+        {
+            /* wait until any of the buttons' is pushed */
         }
+        uint8_t ct = 0x30 + ((reg->IN >> 13) & 15UL);
+        // app_uart_put(ct);
+        printf("%c", ct);
     }
 #else
 
@@ -191,6 +247,5 @@ int main(void)
     }
 #endif
 }
-
 
 /** @} */
