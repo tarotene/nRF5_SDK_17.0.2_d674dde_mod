@@ -21,7 +21,8 @@
         "app_util_platform.h": "c",
         "sdk_config.h": "c",
         "cstdarg": "cpp",
-        "types.h": "c"
+        "types.h": "c",
+        "app_uart.h": "c"
     },
     "git.ignoreLimitWarning": true
 }
