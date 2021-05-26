@@ -41,6 +41,10 @@
 *.x86_64
 *.hex
 
+# Executables (added 2021-05-26 13:28:20)
+*.bin
+*.in
+
 # Debug files
 *.dSYM/
 *.su
@@ -68,5 +72,8 @@ dkms.conf
 # Ignore all local history of files
 .history
 .ionide
+
+### Build directories (added 2021-05-26 13:28:09)
+_build
 
 # End of https://www.toptal.com/developers/gitignore/api/c,visualstudiocode

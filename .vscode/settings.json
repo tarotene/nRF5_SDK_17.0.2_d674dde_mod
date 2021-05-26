@@ -22,7 +22,11 @@
         "sdk_config.h": "c",
         "cstdarg": "cpp",
         "types.h": "c",
-        "app_uart.h": "c"
+        "app_uart.h": "c",
+        "nrf_log_backend_rtt.h": "c",
+        "nrf_log_default_backends.h": "c",
+        "nrf_log_ctrl.h": "c",
+        "nrf_log.h": "c"
     },
     "git.ignoreLimitWarning": true
 }

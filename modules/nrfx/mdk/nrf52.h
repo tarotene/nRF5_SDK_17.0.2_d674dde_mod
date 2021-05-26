@@ -2262,6 +2262,7 @@ typedef struct {                                /*!< (@ 0x50000000) P0 Structure
                                                                     pins                                                       */
 } NRF_GPIO_Type;                                /*!< Size = 1920 (0x780)                                                       */
 
+
 /** @} */ /* End of group Device_Peripheral_peripherals */
 
 
